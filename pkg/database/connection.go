@@ -25,7 +25,7 @@ type (
 	}
 )
 
-var Postgres = &RepositoryDao{}
+var Dao = &RepositoryDao{}
 
 func generateDsn(user string, pass string, host string, port int, dbName string, sslMode bool) string {
 	if sslMode {
