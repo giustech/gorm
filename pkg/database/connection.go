@@ -38,21 +38,23 @@ func generateDsn(user string, pass string, host string, port int, dbName string,
 
 func (r *RepositoryDao) Start(configurations []RepositoryConfiguration) {
 	r.once.Do(func() {
+		environment := strings.ToUpper(os.Getenv("ENVIRONMENT"))
 		r.poolGormDb = make(map[string]*gorm.DB)
-		for _, configuration := range configurations {
-			con, err := PostgresGorm.GetInstance(configuration.DBUser, configuration.DBPass, configuration.DBHost, configuration.DBPort, configuration.DBName, false)
-			if err != nil {
-				panic(err)
-			}
-			r.poolGormDb[configuration.ConnectionName] = con
-		}
-		con, err := SqliteGorm.GetInstance("", "", "", 5432, "", false)
-		if err != nil {
-			if strings.ToUpper(os.Getenv("ENVIRONMENT")) != "PRODUCTION" {
-				log.Printf("Error to inject sqlite")
+		if environment != "TEST" {
+			for _, configuration := range configurations {
+				con, err := PostgresGorm.GetInstance(configuration.DBUser, configuration.DBPass, configuration.DBHost, configuration.DBPort, configuration.DBName, false)
+				if err != nil {
+					panic(err)
+				}
+				r.poolGormDb[configuration.ConnectionName] = con
 			}
 		} else {
-			r.poolGormDb["sqlite"] = con
+			con, err := SqliteGorm.GetInstance("", "", "", 5432, "", false)
+			if err != nil {
+				log.Printf("Error to inject sqlite")
+			} else {
+				r.poolGormDb["sqlite"] = con
+			}
 		}
 
 	})
