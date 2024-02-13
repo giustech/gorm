@@ -4,8 +4,6 @@ import (
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	"gorm.io/gorm"
-	"os"
-	"strings"
 	"sync"
 )
 
@@ -39,21 +37,18 @@ func (r *RepositoryDao) Start(configurations []RepositoryConfiguration) {
 	r.once.Do(func() {
 		r.poolGormDb = make(map[string]*gorm.DB)
 		for _, configuration := range configurations {
-			var con *gorm.DB
-			var err error
-			switch strings.ToUpper(os.Getenv("ENVIRONMENT")) {
-			case "TEST":
-				con, err = SqliteGorm.GetInstance(configuration.DBUser, configuration.DBPass, configuration.DBHost, configuration.DBPort, configuration.DBName, false)
-				break
-			default:
-				con, err = PostgresGorm.GetInstance(configuration.DBUser, configuration.DBPass, configuration.DBHost, configuration.DBPort, configuration.DBName, false)
-				break
-			}
+			con, err := PostgresGorm.GetInstance(configuration.DBUser, configuration.DBPass, configuration.DBHost, configuration.DBPort, configuration.DBName, false)
 			if err != nil {
 				panic(err)
 			}
 			r.poolGormDb[configuration.ConnectionName] = con
 		}
+		con, err := SqliteGorm.GetInstance("", "", "", 5432, "", false)
+		if err != nil {
+			panic(err)
+		}
+		r.poolGormDb["sqlite"] = con
+
 	})
 }
 
