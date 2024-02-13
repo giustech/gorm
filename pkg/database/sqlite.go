@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"log"
+	"os"
 	"strings"
 	"time"
 )
@@ -30,7 +32,9 @@ func (sqliteConnection) GetInstance(_ string, _ string, _ string, _ int, _ strin
 	gormDb, err := gorm.Open(connection, &config)
 
 	if err != nil {
-		panic(err)
+		if strings.ToUpper(os.Getenv("ENVIRONMENT")) != "PRODUCTION" {
+			log.Printf("Error to inject sqlite")
+		}
 	}
 
 	return gormDb, err
