@@ -51,8 +51,9 @@ func (r *RepositoryDao) Start(configurations []RepositoryConfiguration) {
 			if strings.ToUpper(os.Getenv("ENVIRONMENT")) != "PRODUCTION" {
 				log.Printf("Error to inject sqlite")
 			}
+		} else {
+			r.poolGormDb["sqlite"] = con
 		}
-		r.poolGormDb["sqlite"] = con
 
 	})
 }
