@@ -32,15 +32,9 @@ func (sqliteConnection) GetInstance(_ string, _ string, _ string, _ int, _ strin
 }
 
 func checkIfFolderExists(folderPath string) bool {
-	info, err := os.Stat(folderPath)
+	_, err := os.ReadDir(folderPath)
 	if err != nil {
-		if os.IsNotExist(err) {
-			// A pasta não existe
-			return false
-		}
-		// Houve algum outro erro ao tentar obter as informações
 		return false
 	}
-	// Verifica se o caminho é de fato uma pasta (e não um arquivo)
-	return info.IsDir()
+	return true
 }
