@@ -4,6 +4,9 @@ import (
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	"gorm.io/gorm"
+	"log"
+	"os"
+	"strings"
 	"sync"
 )
 
@@ -45,7 +48,9 @@ func (r *RepositoryDao) Start(configurations []RepositoryConfiguration) {
 		}
 		con, err := SqliteGorm.GetInstance("", "", "", 5432, "", false)
 		if err != nil {
-			panic(err)
+			if strings.ToUpper(os.Getenv("ENVIRONMENT")) != "PRODUCTION" {
+				log.Printf("Error to inject sqlite")
+			}
 		}
 		r.poolGormDb["sqlite"] = con
 
