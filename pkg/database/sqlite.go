@@ -5,7 +5,6 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"gorm.io/gorm/schema"
 	"log"
 	"os"
 	"strings"
@@ -38,10 +37,6 @@ func (sqliteConnection) GetInstance(_ string, _ string, _ string, _ int, _ strin
 	)
 	config = gorm.Config{
 		Logger: newLogger,
-		NamingStrategy: schema.NamingStrategy{
-			TablePrefix:   "entities.",
-			SingularTable: false,
-		},
 	}
 
 	sql := fmt.Sprintf("sqlite/%s.db", strings.Replace(strings.ReplaceAll(strings.ReplaceAll(timestampStr, "-", ""), ":", ""), " ", "", 1))
