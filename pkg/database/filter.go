@@ -17,8 +17,6 @@ func buildQuery(db *gorm.DB, filterValue reflect.Value, filterType reflect.Type)
 		kind := fieldType.Type.Kind()
 		isUUID := fieldType.Type.PkgPath() == "github.com/google/uuid" && fieldType.Type.Name() == "UUID"
 
-		operator := "="
-
 		var valueStr string
 		if isUUID {
 			if u, ok := fieldValue.Interface().(uuid.UUID); ok && u != uuid.Nil {
@@ -34,7 +32,6 @@ func buildQuery(db *gorm.DB, filterValue reflect.Value, filterType reflect.Type)
 				} else {
 					valueStr = "false"
 				}
-				operator = "is"
 			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 				valueStr = strconv.FormatInt(fieldValue.Int(), 10)
 			case reflect.Float32, reflect.Float64:
@@ -54,7 +51,11 @@ func buildQuery(db *gorm.DB, filterValue reflect.Value, filterType reflect.Type)
 					}
 				}
 				if dbColumnName != "" {
-					db = db.Where(fmt.Sprintf(" %s %s ?", dbColumnName, operator), valueStr)
+					if kind == reflect.Bool {
+						db = db.Where(dbColumnName+" = ?", fieldValue.Bool())
+					} else {
+						db = db.Where(fmt.Sprintf("%s = ", dbColumnName), valueStr)
+					}
 				}
 			}
 		}
