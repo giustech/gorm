@@ -1,7 +1,6 @@
 package database
 
 import (
-	"fmt"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"reflect"
@@ -54,7 +53,7 @@ func buildQuery(db *gorm.DB, filterValue reflect.Value, filterType reflect.Type)
 					if kind == reflect.Bool {
 						db = db.Where(dbColumnName+" = ?", fieldValue.Bool())
 					} else {
-						db = db.Where(fmt.Sprintf("%s = ", dbColumnName), valueStr)
+						db = db.Where(dbColumnName+" = ?", valueStr)
 					}
 				}
 			}
