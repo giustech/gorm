@@ -35,8 +35,11 @@ func (sqliteConnection) GetInstance(_ string, _ string, _ string, _ int, _ strin
 			Colorful:      true,        // Habilita a cor no log para uma melhor distinção
 		},
 	)
-	config = gorm.Config{
-		Logger: newLogger,
+
+	if os.Getenv("SHOW_SQL") == "true" {
+		config = gorm.Config{
+			Logger: newLogger,
+		}
 	}
 
 	sql := fmt.Sprintf("sqlite/%s.db", strings.Replace(strings.ReplaceAll(strings.ReplaceAll(timestampStr, "-", ""), ":", ""), " ", "", 1))
