@@ -29,12 +29,20 @@ type (
 		DBPort         int
 		DBName         string
 	}
+
+	GormData struct {
+		config string
+	}
 )
 
 var (
 	Dao            = &RepositoryDao{}
 	configurations []RepositoryConfiguration
 )
+
+func (gormData GormData) GetDao() *gorm.DB {
+	return Dao.getInstance(gormData.config)
+}
 
 func generateDsn(user string, pass string, host string, port int, dbName string, sslMode bool) string {
 	if sslMode {
@@ -85,6 +93,6 @@ func (r *RepositoryDao) initConfiguration() {
 	}
 }
 
-func (r *RepositoryDao) GetInstance(name string) *gorm.DB {
+func (r *RepositoryDao) getInstance(name string) *gorm.DB {
 	return r.poolGormDb[name].gormDb
 }
