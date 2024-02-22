@@ -63,13 +63,16 @@ func buildQuery(db *gorm.DB, filterValue reflect.Value, filterType reflect.Type)
 }
 
 func CountFiltered(db *gorm.DB, filterValue reflect.Value, filterType reflect.Type, count *int64) *gorm.DB {
-	return buildQuery(db, filterValue, filterType).Count(count)
+	_gorm := buildQuery(db, filterValue, filterType).Count(count)
+	return _gorm
 }
 
 func PaginatedFiltered(db *gorm.DB, filterValue reflect.Value, filterType reflect.Type, pageSize int, pageNum int, result interface{}) *gorm.DB {
+	var _gorm *gorm.DB
 	if pageSize > 0 && pageNum > 0 {
-		return buildQuery(db, filterValue, filterType).Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(result)
+		_gorm = buildQuery(db, filterValue, filterType).Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(result)
 	} else {
-		return buildQuery(db, filterValue, filterType).Find(result)
+		_gorm = buildQuery(db, filterValue, filterType).Find(result)
 	}
+	return _gorm
 }
