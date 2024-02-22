@@ -11,8 +11,13 @@ import (
 )
 
 type (
+	daoConfiguration struct {
+		gormDb *gorm.DB
+		config RepositoryConfiguration
+	}
+
 	RepositoryDao struct {
-		poolGormDb map[string]*gorm.DB
+		poolGormDb map[string]daoConfiguration
 		once       sync.Once
 	}
 
@@ -48,25 +53,38 @@ func (r *RepositoryDao) Start(_configurations []RepositoryConfiguration) {
 
 func (r *RepositoryDao) initConfiguration() {
 	environment := strings.ToUpper(os.Getenv("ENVIRONMENT"))
-	r.poolGormDb = make(map[string]*gorm.DB)
+	r.poolGormDb = make(map[string]daoConfiguration)
 	if environment != "TEST" {
 		for _, configuration := range configurations {
 			con, err := PostgresGorm.GetInstance(configuration.DBUser, configuration.DBPass, configuration.DBHost, configuration.DBPort, configuration.DBName, false)
 			if err != nil {
 				panic(err)
 			}
-			r.poolGormDb[configuration.ConnectionName] = con
+			r.poolGormDb[configuration.ConnectionName] = daoConfiguration{
+				gormDb: con,
+				config: configuration,
+			}
 		}
 	} else {
 		con, err := SqliteGorm.GetInstance("", "", "", 5432, "", false)
 		if err != nil {
 			log.Printf("Error to inject sqlite")
 		} else {
-			r.poolGormDb["sqlite"] = con
+			r.poolGormDb["sqlite"] = daoConfiguration{
+				gormDb: con,
+				config: RepositoryConfiguration{
+					ConnectionName: "",
+					DBUser:         "",
+					DBPass:         "",
+					DBHost:         "",
+					DBPort:         0,
+					DBName:         "",
+				},
+			}
 		}
 	}
 }
 
 func (r *RepositoryDao) GetInstance(name string) *gorm.DB {
-	return r.poolGormDb[name]
+	return r.poolGormDb[name].gormDb
 }
