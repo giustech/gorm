@@ -31,7 +31,7 @@ type (
 	}
 
 	GormData struct {
-		config string
+		Config string
 	}
 )
 
@@ -41,7 +41,7 @@ var (
 )
 
 func (gormData GormData) GetDao() *gorm.DB {
-	return Dao.getInstance(gormData.config)
+	return Dao.getInstance(gormData.Config)
 }
 
 func generateDsn(user string, pass string, host string, port int, dbName string, sslMode bool) string {
