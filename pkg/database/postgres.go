@@ -5,6 +5,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
+	"log"
 )
 
 var PostgresGorm GormConnection
@@ -22,7 +23,10 @@ func (postgresConnection) GetInstance(user string, pass string, host string, por
 	var err error
 	var connection gorm.Dialector
 	var config gorm.Config
-	connection = postgres.Open(generateDsn(user, pass, host, port, dbName, sslMode))
+	log.Printf("Init postgres connection\n")
+	connectionString := generateDsn(user, pass, host, port, dbName, sslMode)
+	log.Printf("Connection String: %s", connectionString)
+	connection = postgres.Open(connectionString)
 	config = gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 		NamingStrategy: schema.NamingStrategy{
@@ -33,6 +37,8 @@ func (postgresConnection) GetInstance(user string, pass string, host string, por
 	gormDb, err := gorm.Open(connection, &config)
 
 	if err != nil {
+		log.Printf("Error to connect with postgres: %s", connectionString)
+		log.Println(err.Error())
 		panic(err)
 	}
 	return gormDb, err
