@@ -64,9 +64,11 @@ func (r *RepositoryDao) initConfiguration() {
 	r.poolGormDb = make(map[string]daoConfiguration)
 	if environment != "TEST" {
 		for _, configuration := range configurations {
+			log.Printf("Init instance: %s", configuration.DBName)
 			con, err := PostgresGorm.GetInstance(configuration.DBUser, configuration.DBPass, configuration.DBHost, configuration.DBPort, configuration.DBName, false)
 			if err != nil {
-				panic(err)
+				log.Println(err.Error())
+				log.Fatal(err)
 			}
 			r.poolGormDb[configuration.ConnectionName] = daoConfiguration{
 				gormDb: con,
